@@ -1,126 +1,99 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rút Bài Thấu Hiểu Love Again by Wang 8</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 20px;
       margin: 0;
-      background-color: #f4f4f4;
+      padding: 0;
+      background-color: #f9f9f9;
     }
-
     h1 {
-      font-size: 1.8em;
-      margin-bottom: 10px;
+      margin: 20px 0;
     }
-
-    p {
-      font-size: 1.2em;
-      margin-bottom: 20px;
-    }
-
-    .card-img {
-      width: 100px;
+    img.card-img {
+      width: 120px;
       border: 2px solid #444;
-      border-radius: 8px;
-      margin-top: 10px;
-      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 8px;
     }
-
-    .hidden {
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
       display: none;
     }
-
-    #setupArea input {
-      padding: 8px;
-      width: 80%;
-      max-width: 300px;
-      margin: 10px 0;
+    .log {
+      font-family: monospace;
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
     }
-
-    #setupArea button {
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      width: 80%;
-      max-width: 300px;
-      margin: 10px 0;
+    #gameArea {
+      display: none;
     }
-
-    #setupArea button:hover {
-      background-color: #45a049;
-    }
-
-    #gameArea button {
-      padding: 12px;
-      background-color: #008CBA;
-      color: white;
-      border: none;
-      cursor: pointer;
-      width: 80%;
-      max-width: 300px;
-      margin: 10px 0;
-    }
-
-    #gameArea button:hover {
-      background-color: #007bb5;
-    }
-
+    /* Responsive Design */
     @media (max-width: 600px) {
-      body {
+      img.card-img {
+        width: 100px;
+      }
+      #btn1, #btn2 {
+        width: 100%;
+        font-size: 14px;
         padding: 10px;
       }
-
-      .card-img {
-        width: 80px;
-      }
-
+    }
+    /* Mobile View */
+    @media (max-width: 400px) {
       h1 {
-        font-size: 1.5em;
+        font-size: 20px;
       }
-
-      p {
-        font-size: 1em;
-      }
-
-      #setupArea input, #setupArea button, #gameArea button {
+      #nextBtn {
         width: 100%;
-        max-width: none;
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
+  <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
   <p>Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
-  
+
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button>
   </div>
 
-  <div id="gameArea" class="hidden">
-    <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
-    <button onclick="drawCard(1)">🧔 Anh ấy rút</button>
-    <div id="card1"><img src="back.png" class="card-img" /></div>
-    <div id="question1"></div>
-    <br>
-    <button onclick="drawCard(2)">👩 Cô ấy rút</button>
-    <div id="card2"><img src="back.png" class="card-img" /></div>
-    <div id="question2"></div>
-    <br>
-    <button onclick="resetTurn()">🔄 Tiếp tục</button>
+  <div id="gameArea">
+    <h2>Phòng: <span id="currentRoom"></span></h2>
+    <div><strong id="counter">Còn lại: 0 / 49 lá</strong></div>
+
+    <button onclick="drawCard(1)" id="btn1">🧔 Người 1 rút</button>
+    <div id="card1"><img src="back.png" class="card-img" alt="Bài úp" /></div>
+    <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
+    <br />
+
+    <button onclick="drawCard(2)" id="btn2">👩 Người 2 rút</button>
+    <div id="card2"><img src="back.png" class="card-img" alt="Bài úp" /></div>
+    <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
+    <br />
+
+    <button id="nextBtn" onclick="resetTurn()">🔄 Chơi Tiếp</button>
+
+    <div class="log">
+      <h3>📜 Những Lá Đã Rút:</h3>
+      <ul id="drawnLog"></ul>
+    </div>
   </div>
 
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCig0Z7mku3A0920dAAmJ8QOAGSY2qov34",
@@ -136,84 +109,115 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const allCards = [
-      { label: "Lá 1", question: "Câu hỏi số 1: Bạn có thể chia sẻ một kỷ niệm đáng nhớ nhất của mình?", image: "cards/card1.png", icon: "💭" },
-      { label: "Lá 2", question: "Câu hỏi số 2: Bạn cảm thấy thế nào khi đối mặt với khó khăn trong tình yêu?", image: "cards/card2.png", icon: "💔" },
-      { label: "Lá 3", question: "Câu hỏi số 3: Bạn nghĩ gì về sự tha thứ trong tình yêu?", image: "cards/card3.png", icon: "🤝" },
-      { label: "Lá 4", question: "Câu hỏi số 4: Bạn có thể chia sẻ một kỷ niệm về người yêu cũ?", image: "cards/card4.png", icon: "🔙" },
-      { label: "Lá 5", question: "Câu hỏi số 5: Bạn có nghĩ rằng tình yêu thay đổi con người?", image: "cards/card5.png", icon: "💡" },
-      { label: "Lá 6", question: "Câu hỏi số 6: Bạn nghĩ sao về việc yêu xa?", image: "cards/card6.png", icon: "🌍" },
-      { label: "Lá 7", question: "Câu hỏi số 7: Bạn nghĩ sao về việc thay đổi bản thân để phù hợp với người yêu?", image: "cards/card7.png", icon: "💪" },
-      { label: "Lá 8", question: "Câu hỏi số 8: Bạn nghĩ thế nào về việc yêu một người không hoàn hảo?", image: "cards/card8.png", icon: "❤️" },
-      { label: "Lá 9", question: "Câu hỏi số 9: Tình yêu có thể vượt qua mọi thử thách?", image: "cards/card9.png", icon: "🌈" },
-      { label: "Lá 10", question: "Câu hỏi số 10: Bạn nghĩ sao về sự trung thực trong một mối quan hệ?", image: "cards/card10.png", icon: "🔍" },
-      { label: "Lá 11", question: "Câu hỏi số 11: Bạn có cảm thấy hạnh phúc khi làm người yêu của một ai đó?", image: "cards/card11.png", icon: "😊" },
-      { label: "Lá 12", question: "Câu hỏi số 12: Bạn nghĩ sao về việc tạo ra những kỷ niệm đẹp trong tình yêu?", image: "cards/card12.png", icon: "📸" },
-      { label: "Lá 13", question: "Câu hỏi số 13: Nếu bạn có thể thay đổi điều gì trong một mối quan hệ, bạn sẽ thay đổi gì?", image: "cards/card13.png", icon: "🔄" },
-      { label: "Lá 14", question: "Câu hỏi số 14: Bạn nghĩ sao về việc thể hiện tình yêu bằng hành động?", image: "cards/card14.png", icon: "💝" },
-      { label: "Lá 15", question: "Câu hỏi số 15: Điều gì quan trọng nhất đối với bạn trong một mối quan hệ?", image: "cards/card15.png", icon: "💬" },
-      { label: "Lá 16", question: "Câu hỏi số 16: Bạn nghĩ sao về việc tha thứ cho những lỗi lầm trong tình yêu?", image: "cards/card16.png", icon: "🙏" },
-      { label: "Lá 17", question: "Câu hỏi số 17: Bạn có tin vào tình yêu sét đánh?", image: "cards/card17.png", icon: "💘" },
-      { label: "Lá 18", question: "Câu hỏi số 18: Tình yêu có thể tồn tại mãi mãi không?", image: "cards/card18.png", icon: "∞" },
-      { label: "Lá 19", question: "Câu hỏi số 19: Bạn nghĩ sao về việc yêu một người không chia sẻ cùng quan điểm sống?", image: "cards/card19.png", icon: "🤔" },
-      { label: "Lá 20", question: "Câu hỏi số 20: Bạn có thể chấp nhận người yêu có quá khứ khác biệt?", image: "cards/card20.png", icon: "⏳" },
-      { label: "Lá 21", question: "Câu hỏi số 21: Bạn nghĩ thế nào về việc yêu một người có quá khứ khác biệt?", image: "cards/card21.png", icon: "💬" },
-      { label: "Lá 22", question: "Câu hỏi số 22: Bạn nghĩ sao về việc chia sẻ tình yêu qua mạng xã hội?", image: "cards/card22.png", icon: "📱" },
-      { label: "Lá 23", question: "Câu hỏi số 23: Bạn nghĩ sao về việc yêu một người không nói về cảm xúc của họ?", image: "cards/card23.png", icon: "🤐" },
-      { label: "Lá 24", question: "Câu hỏi số 24: Bạn có tin vào tình yêu đích thực?", image: "cards/card24.png", icon: "💖" },
-      { label: "Lá 25", question: "Câu hỏi số 25: Bạn nghĩ sao về việc yêu một người không chia sẻ cùng sở thích?", image: "cards/card25.png", icon: "🎭" },
-      { label: "Lá 26", question: "Câu hỏi số 26: Bạn có nghĩ rằng sự đồng cảm rất quan trọng trong tình yêu?", image: "cards/card26.png", icon: "💌" },
-      { label: "Lá 27", question: "Câu hỏi số 27: Bạn nghĩ sao về việc yêu một người không thể hiện tình cảm?", image: "cards/card27.png", icon: "🫣" },
-      { label: "Lá 28", question: "Câu hỏi số 28: Bạn có nghĩ rằng tình yêu có thể chữa lành những vết thương cũ?", image: "cards/card28.png", icon: "🩹" },
-      { label: "Lá 29", question: "Câu hỏi số 29: Bạn nghĩ sao về việc yêu một người bạn đã từng làm bạn thân?", image: "cards/card29.png", icon: "👫" },
-      { label: "Lá 30", question: "Câu hỏi số 30: Bạn nghĩ sao về việc chia sẻ những suy nghĩ sâu sắc với người yêu?", image: "cards/card30.png", icon: "🧠" },
-      { label: "Lá 31", question: "Câu hỏi số 31: Bạn có cảm thấy thoải mái khi chia sẻ cảm xúc của mình với người yêu?", image: "cards/card31.png", icon: "😌" },
-      { label: "Lá 32", question: "Câu hỏi số 32: Bạn nghĩ sao về việc yêu một người có quá khứ khó khăn?", image: "cards/card32.png", icon: "🛠️" },
-      { label: "Lá 33", question: "Câu hỏi số 33: Bạn có nghĩ rằng tình yêu giúp ta trưởng thành?", image: "cards/card33.png", icon: "🌱" },
-      { label: "Lá 34", question: "Câu hỏi số 34: Bạn nghĩ sao về việc yêu một người không hiểu rõ cảm xúc của mình?", image: "cards/card34.png", icon: "🧩" },
-      { label: "Lá 35", question: "Câu hỏi số 35: Bạn có nghĩ rằng tình yêu cần có sự tin tưởng tuyệt đối?", image: "cards/card35.png", icon: "🔒" },
-      { label: "Lá 36", question: "Câu hỏi số 36: Bạn nghĩ sao về việc yêu một người có quá nhiều mối quan hệ trước đó?", image: "cards/card36.png", icon: "⚖️" },
-      { label: "Lá 37", question: "Câu hỏi số 37: Bạn có nghĩ rằng tình yêu là sự hy sinh?", image: "cards/card37.png", icon: "🎁" },
-      { label: "Lá 38", question: "Câu hỏi số 38: Bạn nghĩ sao về việc chia sẻ những nỗi sợ trong tình yêu?", image: "cards/card38.png", icon: "😱" },
-      { label: "Lá 39", question: "Câu hỏi số 39: Bạn nghĩ sao về việc yêu một người không thể hiện tình cảm?", image: "cards/card39.png", icon: "🧑‍🤝‍🧑" },
-      { label: "Lá 40", question: "Câu hỏi số 40: Bạn nghĩ sao về việc yêu một người có quá khứ không hoàn hảo?", image: "cards/card40.png", icon: "⚡" },
-      { label: "Lá 41", question: "Câu hỏi số 41: Bạn có nghĩ rằng tình yêu có thể giúp ta vượt qua khó khăn trong cuộc sống?", image: "cards/card41.png", icon: "💪" },
-      { label: "Lá 42", question: "Câu hỏi số 42: Bạn có nghĩ rằng tình yêu có thể khiến ta trở nên tốt hơn?", image: "cards/card42.png", icon: "🏆" },
-      { label: "Lá 43", question: "Câu hỏi số 43: Bạn nghĩ sao về việc yêu một người không cùng quan điểm chính trị?", image: "cards/card43.png", icon: "🎭" },
-      { label: "Lá 44", question: "Câu hỏi số 44: Bạn nghĩ sao về việc yêu một người không chia sẻ tầm nhìn tương lai?", image: "cards/card44.png", icon: "🔮" },
-      { label: "Lá 45", question: "Câu hỏi số 45: Bạn nghĩ sao về việc yêu một người có quá nhiều lo lắng?", image: "cards/card45.png", icon: "⚠️" },
-      { label: "Lá 46", question: "Câu hỏi số 46: Bạn có tin vào tình yêu không?", image: "cards/card46.png", icon: "💘" },
-      { label: "Lá 47", question: "Câu hỏi số 47: Bạn nghĩ sao về việc yêu một người không chia sẻ niềm tin tôn giáo?", image: "cards/card47.png", icon: "⛪" },
-      { label: "Lá 48", question: "Câu hỏi số 48: Bạn nghĩ sao về việc yêu một người không quan tâm đến gia đình?", image: "cards/card48.png", icon: "👨‍👩‍👧" },
-      { label: "Lá 49", question: "Câu hỏi số 49: Bạn nghĩ sao về việc yêu một người không muốn kết hôn?", image: "cards/card49.png", icon: "💍" },
-    ];
+    const cards = Array.from({ length: 49 }, (_, i) => ({
+      id: i + 1,
+      label: `Lá ${i + 1}`,
+      question: `Câu hỏi ${i + 1}`,
+      image: `cards/card${i + 1}.png`
+    }));
 
-    // Random card picker logic
-    function drawCard(player) {
-      const randomCard = allCards[Math.floor(Math.random() * allCards.length)];
-      if (player === 1) {
-        document.getElementById('card1').innerHTML = `<img src="${randomCard.image}" class="card-img" />`;
-        document.getElementById('question1').innerHTML = `${randomCard.icon} ${randomCard.question}`;
-      } else {
-        document.getElementById('card2').innerHTML = `<img src="${randomCard.image}" class="card-img" />`;
-        document.getElementById('question2').innerHTML = `${randomCard.icon} ${randomCard.question}`;
-      }
-    }
+    let currentRoom = '';
+    let drawnCards = [];
 
     function joinRoom() {
-      const roomId = document.getElementById('roomId').value;
-      if (roomId.trim()) {
-        document.getElementById('roomDisplay').textContent = roomId;
-        document.getElementById('setupArea').classList.add('hidden');
-        document.getElementById('gameArea').classList.remove('hidden');
+      const room = document.getElementById("roomId").value.trim();
+      if (!room) return alert("Vui lòng nhập mã phòng!");
+
+      currentRoom = room;
+      document.getElementById("setupArea").style.display = "none";
+      document.getElementById("gameArea").style.display = "block";
+      document.getElementById("currentRoom").textContent = currentRoom;
+
+      const roomRef = ref(db, `rooms/${currentRoom}`);
+
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data?.lastCard) {
+          const { card, player } = data.lastCard;
+          displayCard(card, player);
+        }
+        if (data?.drawnCards) {
+          drawnCards = data.drawnCards;
+          updateLog();
+          updateCounter();
+        }
+      });
+
+      get(roomRef).then((snap) => {
+        if (!snap.exists()) {
+          set(roomRef, {
+            drawnCards: [],
+            remainingCards: [...Array(cards.length).keys()].map(i => i + 1),
+            lastCard: null
+          });
+        }
+      });
+    }
+
+    function drawCard(player) {
+      const roomRef = ref(db, `rooms/${currentRoom}`);
+      get(roomRef).then((snapshot) => {
+        const data = snapshot.val();
+        if (!data || !data.remainingCards.length) {
+          alert("Hết bài rồi!");
+          return;
+        }
+
+        const remaining = data.remainingCards;
+        const index = Math.floor(Math.random() * remaining.length);
+        const cardId = remaining.splice(index, 1)[0];
+        const card = cards.find(c => c.id === cardId);
+
+        const updatedDrawn = [...(data.drawnCards || []), card];
+
+        update(roomRef, {
+          drawnCards: updatedDrawn,
+          remainingCards: remaining,
+          lastCard: { card, player }
+        });
+      });
+    }
+
+    function displayCard(card, player) {
+      const imgHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
+      const text = card.question;
+      if (player === 1) {
+        document.getElementById("card1").innerHTML = imgHTML;
+        document.getElementById("question1").textContent = text;
+        document.getElementById("btn1").disabled = true;
+      } else {
+        document.getElementById("card2").innerHTML = imgHTML;
+        document.getElementById("question2").textContent = text;
+        document.getElementById("btn2").disabled = true;
+      }
+
+      if (document.getElementById("btn1").disabled && document.getElementById("btn2").disabled) {
+        document.getElementById("nextBtn").style.display = "block";
       }
     }
 
     function resetTurn() {
-      document.getElementById('question1').innerHTML = "";
-      document.getElementById('question2').innerHTML = "";
-      document.getElementById('card1').innerHTML = "<img src='back.png' class='card-img' />";
-      document.getElementById('card2').innerHTML = "<img src='back.png' class='card-img' />";
+      document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("question1").textContent = "";
+      document.getElementById("question2").textContent = "";
+      document.getElementById("btn1").disabled = false;
+      document.getElementById("btn2").disabled = false;
+      document.getElementById("nextBtn").style.display = "none";
+    }
+
+    function updateLog() {
+      const log = document.getElementById("drawnLog");
+      log.innerHTML = "";
+      drawnCards.forEach(card => {
+        const li = document.createElement("li");
+        li.textContent = `${card.label}: ${card.question}`;
+        log.appendChild(li);
+      });
+    }
+
+    function updateCounter() {
+      document.getElementById("counter").textContent = `Còn lại: ${49 - drawnCards.length} / 49 lá`;
     }
   </script>
 </body>
