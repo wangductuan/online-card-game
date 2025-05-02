@@ -31,25 +31,9 @@
 <body>
   <h1>🎴 Trò Chơi Rút Bài Câu Hỏi</h1>
 
-  <!-- 🚀 Phần nhập thông tin người chơi -->
+  <!-- 🚀 Phần nhập thông tin người chơi (Bỏ qua phần này) -->
   <div id="setupArea">
-    <h2>🧑‍🤝‍🧑 Nhập thông tin người chơi</h2>
-    <div class="player-form">
-      <label>Tên người chơi 1: <input type="text" id="name1" required></label>
-      <select id="gender1">
-        <option value="Nam">Nam</option>
-        <option value="Nữ">Nữ</option>
-        <option value="Khác">Khác</option>
-      </select>
-    </div>
-    <div class="player-form">
-      <label>Tên người chơi 2: <input type="text" id="name2" required></label>
-      <select id="gender2">
-        <option value="Nam">Nam</option>
-        <option value="Nữ">Nữ</option>
-        <option value="Khác">Khác</option>
-      </select>
-    </div>
+    <h2>🧑‍🤝‍🧑 Trò Chơi Bắt Đầu</h2>
     <button onclick="startGame()">🎮 Bắt đầu chơi</button>
   </div>
 
@@ -57,12 +41,12 @@
   <div id="gameArea">
     <div><strong id="counter">Còn lại: 49 / 49 lá</strong></div>
 
-    <button onclick="drawCard(1)" id="btn1">Người chơi 1 rút</button>
+    <button onclick="drawCard(1)" id="btn1">Anh ấy rút</button>
     <div id="card1"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
     <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
 
-    <button onclick="drawCard(2)" id="btn2">Người chơi 2 rút</button>
+    <button onclick="drawCard(2)" id="btn2">Cô ấy rút</button>
     <div id="card2"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
     <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
@@ -85,18 +69,10 @@
     ];
 
     let drawnCards = [];
-    let player1Name, player2Name;
     let remainingCards = [...cards]; // Copy the original cards array
 
     function startGame() {
-      player1Name = document.getElementById("name1").value;
-      player2Name = document.getElementById("name2").value;
-      if (!player1Name || !player2Name) {
-        alert("Bạn cần nhập tên người chơi!");
-        return;
-      }
-
-      // Ẩn phần nhập thông tin và hiển thị khu vực chơi game
+      // Mở lại khu vực chơi game
       document.getElementById("setupArea").style.display = "none";
       document.getElementById("gameArea").style.display = "block";
       updateCounter();
