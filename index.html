@@ -79,4 +79,94 @@
     const cards = [
       { id: 1, label: "Lá 1", question: "Nếu được du hành thời gian, bạn muốn quay về đâu?", image: "cards/card1.png" },
       { id: 2, label: "Lá 2", question: "Món ăn yêu thích nhất của bạn là gì?", image: "cards/card2.png" },
-      { id: 3, label: "Lá 3", question: "Kể một bí mật nhỏ chưa ai biết 😏", image
+      { id: 3, label: "Lá 3", question: "Kể một bí mật nhỏ chưa ai biết 😏", image: "cards/card3.png" },
+      { id: 4, label: "Lá 4", question: "Điều gì khiến bạn cảm thấy hạnh phúc nhất?", image: "cards/card4.png" },
+      // Thêm các lá bài khác nếu cần
+    ];
+
+    let drawnCards = [];
+    let player1Name, player2Name;
+    let remainingCards = [...cards]; // Copy the original cards array
+
+    function startGame() {
+      player1Name = document.getElementById("name1").value;
+      player2Name = document.getElementById("name2").value;
+      if (!player1Name || !player2Name) {
+        alert("Bạn cần nhập tên người chơi!");
+        return;
+      }
+
+      // Ẩn phần nhập thông tin và hiển thị khu vực chơi game
+      document.getElementById("setupArea").style.display = "none";
+      document.getElementById("gameArea").style.display = "block";
+      updateCounter();
+
+      // Mở lại các nút rút bài
+      document.getElementById("btn1").disabled = false;
+      document.getElementById("btn2").disabled = false;
+    }
+
+    function updateCounter() {
+      const counter = document.getElementById("counter");
+      counter.textContent = `Còn lại: ${remainingCards.length} / 49 lá`;
+    }
+
+    function drawCard(player) {
+      if (remainingCards.length === 0) {
+        alert("Hết bài rồi!");
+        return;
+      }
+
+      const cardIndex = Math.floor(Math.random() * remainingCards.length);
+      const card = remainingCards.splice(cardIndex, 1)[0]; // Rút một lá bài ngẫu nhiên
+      drawnCards.push(card);
+
+      // Hiển thị lá bài và câu hỏi
+      if (player === 1) {
+        document.getElementById("card1").innerHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
+        document.getElementById("question1").textContent = card.question;
+      } else {
+        document.getElementById("card2").innerHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
+        document.getElementById("question2").textContent = card.question;
+      }
+
+      // Vô hiệu hóa nút rút bài của người chơi
+      if (player === 1) {
+        document.getElementById("btn1").disabled = true;
+      } else {
+        document.getElementById("btn2").disabled = true;
+      }
+
+      updateCounter();
+      checkGameOver();
+    }
+
+    function checkGameOver() {
+      // Khi cả hai người chơi đã rút bài, hiển thị nút "Tiếp tục chơi"
+      if (document.getElementById("btn1").disabled && document.getElementById("btn2").disabled) {
+        document.getElementById("nextBtn").style.display = "block";
+      }
+    }
+
+    function resetTurn() {
+      // Reset trò chơi cho lượt tiếp theo
+      document.getElementById("card1").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("card2").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("question1").textContent = "";
+      document.getElementById("question2").textContent = "";
+      document.getElementById("btn1").disabled = false;
+      document.getElementById("btn2").disabled = false;
+      document.getElementById("nextBtn").style.display = "none";
+
+      // Cập nhật danh sách những lá bài đã rút
+      const drawnLog = document.getElementById("drawnLog");
+      drawnLog.innerHTML = "";
+      drawnCards.forEach(card => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${card.label}: ${card.question}`;
+        drawnLog.appendChild(listItem);
+      });
+    }
+  </script>
+</body>
+</html>
