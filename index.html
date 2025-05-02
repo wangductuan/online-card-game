@@ -2,30 +2,45 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Rút Bài 2 Người Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rút Bài Thấu Hiểu Love Again by Wang 8</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 20px; }
     .card-img { width: 100px; border: 2px solid #444; border-radius: 8px; margin-top: 10px; }
     .hidden { display: none; }
+    h1 { margin-bottom: 10px; }
+    .description { font-size: 16px; color: #555; margin-bottom: 20px; }
+    
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .card-img { width: 80px; }
+      .description { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
-  <h1>🎴 Game Rút Bài Câu Hỏi Online</h1>
+  <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
+  <p class="description">Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
+  
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button><br><br>
     <button onclick="createRoom()">🎲 Tạo Phòng Ngẫu Nhiên</button>
   </div>
+  
   <div id="gameArea" class="hidden">
     <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
-    <button onclick="drawCard(1)">🧔 Người chơi 1 rút</button>
+    
+    <button onclick="drawCard(1)">🧔 Anh ấy rút</button>
     <div id="card1"><img src="back.png" class="card-img" /></div>
     <div id="question1"></div>
     <br>
-    <button onclick="drawCard(2)">👩 Người chơi 2 rút</button>
+    
+    <button onclick="drawCard(2)">👩 Cô ấy rút</button>
     <div id="card2"><img src="back.png" class="card-img" /></div>
     <div id="question2"></div>
     <br>
+    
     <button onclick="resetTurn()">🔄 Tiếp tục</button>
   </div>
 
