@@ -1,0 +1,20 @@
+/* Sao chép nội dung từ thẻ <style> trong HTML gốc của bạn */
+img.card-img {
+  width: 120px;
+  border: 2px solid #444;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+#nextBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  display: none;
+}
+.log {
+  font-family: monospace;
+  margin-top: 20px;
+}
+#gameArea {
+  display: none; /* Ban đầu ẩn khu vực chơi game */
+}
