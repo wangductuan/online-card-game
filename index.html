@@ -1,44 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Rút Bài Câu Hỏi</title>
+  <style>
+    img.card-img {
+      width: 120px;
+      border: 2px solid #444;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: none;
+    }
+    .log {
+      font-family: monospace;
+      margin-top: 20px;
+    }
+    #gameArea {
+      display: none;
+    }
+    .player-form {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎴 Trò Chơi Rút Bài Câu Hỏi</h1>
 
-    <!DOCTYPE html>
-    <html lang="vi">
-    <head>
-      <meta charset="UTF-8">
-      <title>Trò Chơi Rút Bài 2 Người</title>
-      <style>
-        img.card-img {
-          width: 120px;
-          border: 2px solid #444;
-          border-radius: 10px;
-          margin-top: 8px;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>Trò Chơi Rút Bài 2 Người</h1>
-      <div id="gameArea">
-        <button onclick="drawCard(1)" id="btn1">Người chơi 1 rút</button>
-        <div id="card1"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
-        <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
-        <br>
-        <button onclick="drawCard(2)" id="btn2">Người chơi 2 rút</button>
-        <div id="card2"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
-        <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
-        <br>
-      </div>
-      <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-      <script>
-        const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-          databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_PROJECT_ID.appspot.com",
-          messagingSenderId: "YOUR_SENDER_ID",
-          appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-      </script>
-    </body>
-    </html>
-    
+  <!-- 🚀 Phần nhập thông tin người chơi -->
+  <div id="setupArea">
+    <h2>🧑‍🤝‍🧑 Nhập thông tin người chơi</h2>
+    <div class="player-form">
+      <label>Tên người chơi 1: <input type="text" id="name1" required></label>
+      <select id="gender1">
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+        <option value="Khác">Khác</option>
+      </select>
+    </div>
+    <div class="player-form">
+      <label>Tên người chơi 2: <input type="text" id="name2" required></label>
+      <select id="gender2">
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+        <option value="Khác">Khác</option>
+      </select>
+    </div>
+    <button onclick="startGame()">🎮 Bắt đầu chơi</button>
+  </div>
+
+  <!-- 🎯 Khu vực chơi game -->
+  <div id="gameArea">
+    <div><strong id="counter">Còn lại: 49 / 49 lá</strong></div>
+
+    <button onclick="drawCard(1)" id="btn1">Người chơi 1 rút</button>
+    <div id="card1"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
+    <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
+    <br>
+
+    <button onclick="drawCard(2)" id="btn2">Người chơi 2 rút</button>
+    <div id="card2"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
+    <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
+    <br>
+
+    <button id="nextBtn" onclick="resetTurn()">🔄 Chơi Tiếp</button>
+
+    <div class="log">
+      <h3>📜 Những Lá Đã Rút:</h3>
+      <ul id="drawnLog"></ul>
+    </div>
+  </div>
+
+  <script>
+    const cards = [
+      { id: 1, label: "Lá 1", question: "Nếu được du hành thời gian, bạn muốn quay về đâu?", image: "cards/card1.png" },
+      { id: 2, label: "Lá 2", question: "Món ăn yêu thích nhất của bạn là gì?", image: "cards/card2.png" },
+      { id: 3, label: "Lá 3", question: "Kể một bí mật nhỏ chưa ai biết 😏", image
