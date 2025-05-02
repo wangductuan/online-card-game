@@ -37,12 +37,12 @@
     <div><strong id="counter">Còn lại: 0 / 0 lá</strong></div>
 
     <button onclick="drawCard(1)" id="btn1">🧔 Anh ấy rút</button>
-    <div id="card1"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
+    <div id="card1"><img src="back.png" class="card-img" alt="Bài úp"></div>
     <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
 
     <button onclick="drawCard(2)" id="btn2">👩 Cô ấy rút</button>
-    <div id="card2"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
+    <div id="card2"><img src="back.png" class="card-img" alt="Bài úp"></div>
     <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
 
@@ -154,8 +154,8 @@
     }
 
     function resetTurn() {
-      document.getElementById("card1").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
-      document.getElementById("card2").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
       document.getElementById("question1").textContent = "";
       document.getElementById("question2").textContent = "";
       document.getElementById("btn1").disabled = false;
