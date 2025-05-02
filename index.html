@@ -2,18 +2,19 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</title>
+  <title>Rút Bài 2 Người Online</title>
   <style>
-    /* Các style tương tự như trước */
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    .card-img { width: 100px; border: 2px solid #444; border-radius: 8px; margin-top: 10px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
-  <p>Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
+  <h1>🎴 Game Rút Bài Câu Hỏi Online</h1>
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button><br><br>
+    <button onclick="createRoom()">🎲 Tạo Phòng Ngẫu Nhiên</button>
   </div>
   <div id="gameArea" class="hidden">
     <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
@@ -26,11 +27,6 @@
     <div id="question2"></div>
     <br>
     <button onclick="resetTurn()">🔄 Tiếp tục</button>
-
-    <h3>Lịch sử rút bài</h3>
-    <ul id="historyList"></ul>
-
-    <p><strong>Bài còn lại: </strong><span id="cardsLeft"></span></p>
   </div>
 
   <script type="module">
@@ -52,14 +48,15 @@
     const db = getDatabase(app);
 
     const allCards = [
-      { image: "card1.png", question: "Câu hỏi 1: Bạn nghĩ gì về tình yêu đích thực?" },
-      { image: "card2.png", question: "Câu hỏi 2: Bạn nghĩ điều quan trọng nhất trong một mối quan hệ là gì?" },
-      // Thêm các câu hỏi khác
+      { label: "Lá 1", question: "Câu hỏi 1", image: "cards/card1.png" },
+      { label: "Lá 2", question: "Câu hỏi 2", image: "cards/card2.png" },
+      { label: "Lá 3", question: "Câu hỏi 3", image: "cards/card3.png" },
+      { label: "Lá 4", question: "Câu hỏi 4", image: "cards/card4.png" },
+      { label: "Lá 5", question: "Câu hỏi 5", image: "cards/card5.png" }
     ];
 
     let roomId = "";
-    let remainingCards = [...allCards]; // Lưu trữ bài chưa rút
-    let history = [];
+    let remainingCards = [...allCards];
 
     function createRoom() {
       const randomId = 'room_' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -74,40 +71,18 @@
       document.getElementById("gameArea").classList.remove("hidden");
       document.getElementById("roomDisplay").textContent = roomId;
 
-      const roomRef = ref(db, "rooms/" + roomId);
+      const roomRef = ref(db, "rooms/" + roomId + "/lastDraw");
       onValue(roomRef, (snapshot) => {
         const data = snapshot.val();
-        if (data) {
-          if (data.player1 && data.player1.card) {
-            showCard(1, data.player1.card);
-          }
-          if (data.player2 && data.player2.card) {
-            showCard(2, data.player2.card);
-          }
-        }
+        if (data && data.player && data.card) showCard(data.player, data.card);
       });
     };
 
     window.drawCard = function(player) {
-      if (remainingCards.length === 0) {
-        alert("Hết bài rồi!");
-        return; // Dừng hàm nếu hết bài
-      }
-
-      const cardIndex = Math.floor(Math.random() * remainingCards.length); // Chọn ngẫu nhiên một bài
-      const drawnCard = remainingCards.splice(cardIndex, 1)[0]; // Rút bài và loại bỏ khỏi danh sách
-
-      history.push({ player: player === 1 ? "Người chơi 1" : "Người chơi 2", question: drawnCard.question });
-
-      const questionText = drawnCard.question;
-      const imgSrc = drawnCard.image;
-
-      // Cập nhật Firebase với thông tin người chơi và bài rút
-      const playerRef = ref(db, `rooms/${roomId}/player${player}`);
-      set(playerRef, { card: drawnCard });
-
-      updateHistory();  // Cập nhật lịch sử rút bài
-      updateCardsLeft();  // Cập nhật số lượng bài còn lại
+      if (remainingCards.length === 0) return alert("Hết bài rồi!");
+      const idx = Math.floor(Math.random() * remainingCards.length);
+      const card = remainingCards.splice(idx, 1)[0];
+      set(ref(db, "rooms/" + roomId + "/lastDraw"), { player, card });
     };
 
     function showCard(player, card) {
@@ -118,20 +93,6 @@
         document.getElementById("card2").innerHTML = `<img src="${card.image}" class="card-img" />`;
         document.getElementById("question2").textContent = card.question;
       }
-    }
-
-    function updateHistory() {
-      const historyList = document.getElementById("historyList");
-      historyList.innerHTML = ""; // Xóa danh sách cũ
-      history.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.player}: ${item.question}`;
-        historyList.appendChild(li);
-      });
-    }
-
-    function updateCardsLeft() {
-      document.getElementById("cardsLeft").textContent = remainingCards.length;
     }
 
     window.resetTurn = function () {
