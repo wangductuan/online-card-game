@@ -23,30 +23,25 @@
     #gameArea {
       display: none;
     }
-    .player-form {
-      margin-bottom: 10px;
-    }
   </style>
 </head>
 <body>
   <h1>🎴 Trò Chơi Rút Bài Câu Hỏi</h1>
 
-  <!-- 🚀 Phần nhập thông tin người chơi (Bỏ qua phần này) -->
   <div id="setupArea">
     <h2>🧑‍🤝‍🧑 Trò Chơi Bắt Đầu</h2>
     <button onclick="startGame()">🎮 Bắt đầu chơi</button>
   </div>
 
-  <!-- 🎯 Khu vực chơi game -->
   <div id="gameArea">
-    <div><strong id="counter">Còn lại: 49 / 49 lá</strong></div>
+    <div><strong id="counter">Còn lại: 0 / 0 lá</strong></div>
 
-    <button onclick="drawCard(1)" id="btn1">Anh ấy rút</button>
+    <button onclick="drawCard(1)" id="btn1">🧔 Anh ấy rút</button>
     <div id="card1"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
     <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
 
-    <button onclick="drawCard(2)" id="btn2">Cô ấy rút</button>
+    <button onclick="drawCard(2)" id="btn2">👩 Cô ấy rút</button>
     <div id="card2"><img src="cards/back.png" class="card-img" alt="Bài úp"></div>
     <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
     <br>
@@ -113,22 +108,19 @@
     ];
 
     let drawnCards = [];
-    let remainingCards = [...cards]; // Copy the original cards array
+    let remainingCards = [...cards];
 
     function startGame() {
-      // Mở lại khu vực chơi game
       document.getElementById("setupArea").style.display = "none";
       document.getElementById("gameArea").style.display = "block";
       updateCounter();
-
-      // Mở lại các nút rút bài
       document.getElementById("btn1").disabled = false;
       document.getElementById("btn2").disabled = false;
     }
 
     function updateCounter() {
       const counter = document.getElementById("counter");
-      counter.textContent = `Còn lại: ${remainingCards.length} / 49 lá`;
+      counter.textContent = `Còn lại: ${remainingCards.length} / ${cards.length} lá`;
     }
 
     function drawCard(player) {
@@ -138,22 +130,16 @@
       }
 
       const cardIndex = Math.floor(Math.random() * remainingCards.length);
-      const card = remainingCards.splice(cardIndex, 1)[0]; // Rút một lá bài ngẫu nhiên
+      const card = remainingCards.splice(cardIndex, 1)[0];
       drawnCards.push(card);
 
-      // Hiển thị lá bài và câu hỏi
       if (player === 1) {
         document.getElementById("card1").innerHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
         document.getElementById("question1").textContent = card.question;
+        document.getElementById("btn1").disabled = true;
       } else {
         document.getElementById("card2").innerHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
         document.getElementById("question2").textContent = card.question;
-      }
-
-      // Vô hiệu hóa nút rút bài của người chơi
-      if (player === 1) {
-        document.getElementById("btn1").disabled = true;
-      } else {
         document.getElementById("btn2").disabled = true;
       }
 
@@ -162,14 +148,12 @@
     }
 
     function checkGameOver() {
-      // Khi cả hai người chơi đã rút bài, hiển thị nút "Tiếp tục chơi"
       if (document.getElementById("btn1").disabled && document.getElementById("btn2").disabled) {
         document.getElementById("nextBtn").style.display = "block";
       }
     }
 
     function resetTurn() {
-      // Reset trò chơi cho lượt tiếp theo
       document.getElementById("card1").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
       document.getElementById("card2").innerHTML = '<img src="cards/back.png" class="card-img" alt="Bài úp">';
       document.getElementById("question1").textContent = "";
@@ -178,7 +162,6 @@
       document.getElementById("btn2").disabled = false;
       document.getElementById("nextBtn").style.display = "none";
 
-      // Cập nhật danh sách những lá bài đã rút
       const drawnLog = document.getElementById("drawnLog");
       drawnLog.innerHTML = "";
       drawnCards.forEach(card => {
