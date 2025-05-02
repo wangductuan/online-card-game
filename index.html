@@ -172,4 +172,98 @@
     }
   </script>
 </body>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+
+  <!-- Firebase Realtime Database SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+  <script>
+    // Mã JavaScript hiện tại của bạn
+
+    const cards = [
+      // ... dữ liệu các lá bài ...
+    ];
+
+    let drawnCards = []; // Sẽ cần thay đổi để lấy từ DB
+    let remainingCards = [...cards]; // Sẽ cần thay đổi để lấy từ DB
+
+    // --- Thêm phần khởi tạo Firebase vào đây ---
+
+    // Bước 1: Lấy đối tượng cấu hình từ Firebase Console (Thay thế bằng thông tin của bạn!)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "wang-2025",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      databaseURL: "https://wang-2025-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    // Bước 2: Khởi tạo Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+
+    // Bước 3 (Tùy chọn nhưng nên làm): Lấy tham chiếu đến Realtime Database
+    const database = firebase.database();
+
+    // --- Kết thúc phần khởi tạo Firebase ---
+
+
+    function startGame() {
+      document.getElementById("setupArea").style.display = "none";
+      document.getElementById("gameArea").style.display = "block";
+      // Khi game online, logic startGame sẽ phức tạp hơn:
+      // - Tạo/tìm phòng game trong DB
+      // - Khởi tạo bộ bài trong DB cho phòng đó
+      // - Cập nhật UI dựa trên trạng thái phòng từ DB
+      // updateCounter(); // Cập nhật từ DB
+      // document.getElementById("btn1").disabled = false; // Trạng thái nút sẽ dựa vào lượt chơi từ DB
+      // document.getElementById("btn2").disabled = false; // Trạng thái nút sẽ dựa vào lượt chơi từ DB
+    }
+
+    function updateCounter() {
+      // Hàm này sẽ đọc số bài còn lại từ database
+      const counter = document.getElementById("counter");
+      // counter.textContent = `Còn lại: ${số bài từ DB} / ${cards.length} lá`;
+    }
+
+    function drawCard(player) {
+      // Logic này sẽ thay đổi để ghi dữ liệu vào database
+      // - Kiểm tra lượt chơi trong DB
+      // - Nếu đúng lượt, lấy lá bài từ mảng 'deck' trong DB
+      // - Ghi lá bài đã rút vào 'drawnCards' và 'currentTurn' trong DB
+      // - Cập nhật 'currentPlayerId' trong DB để chuyển lượt
+      // - UI sẽ được cập nhật tự động khi listener phát hiện thay đổi trong DB
+    }
+
+    function checkGameOver() {
+      // Logic này sẽ kiểm tra trạng thái lượt chơi trong database
+      // và hiển thị nút "Chơi Tiếp" dựa trên đó
+    }
+
+    function resetTurn() {
+      // Logic này sẽ ghi trạng thái mới cho lượt chơi vào database
+      // - Xóa 'currentTurn' trong DB
+      // - UI sẽ được cập nhật tự động khi listener phát hiện thay đổi trong DB
+      // Nhật ký các lá đã rút cũng sẽ được đọc từ mảng 'drawnCards' trong database
+    }
+
+    // ... Các hàm khác của bạn ...
+
+    // Bây giờ bạn sẽ cần thêm các listener Firebase
+    // Ví dụ: lắng nghe thay đổi trên node phòng chơi để cập nhật UI
+    // database.ref('gameRooms/roomId123').on('value', (snapshot) => {
+    //   const gameData = snapshot.val();
+    //   if (gameData) {
+    //     // Cập nhật UI dựa trên gameData (lượt chơi, bài đã rút, v.v.)
+    //     console.log("Dữ liệu game đã thay đổi:", gameData);
+    //     // Gọi các hàm cập nhật UI dựa trên gameData
+    //   }
+    // });
+
+
+  </script>
+</body>
+</html>
 </html>
