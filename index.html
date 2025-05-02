@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rút Bài Thấu Hiểu Love Again by Wang 8</title>
+  <title>Rút Bài 2 Người Online</title>
   <style>
     body {
       font-family: sans-serif;
@@ -88,8 +88,7 @@
   </style>
 </head>
 <body>
-  <h1>🎴Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
-  Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.
+  <h1>🎴 Game Rút Bài Câu Hỏi Online</h1>
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button>
@@ -126,11 +125,56 @@
     const db = getDatabase(app);
 
     const allCards = [
-      { label: "Lá 1", question: "Câu hỏi 1", image: "cards/card1.png" },
-      { label: "Lá 2", question: "Câu hỏi 2", image: "cards/card2.png" },
-      { label: "Lá 3", question: "Câu hỏi 3", image: "cards/card3.png" },
-      { label: "Lá 4", question: "Câu hỏi 4", image: "cards/card4.png" },
-      { label: "Lá 5", question: "Câu hỏi 5", image: "cards/card5.png" }
+      { label: "Lá 1", question: "Câu hỏi 1: Bạn nghĩ thế nào về tình yêu không điều kiện?", image: "cards/card1.png" },
+      { label: "Lá 2", question: "Câu hỏi 2: Bạn cảm thấy thế nào khi phải chia sẻ một điều gì đó quan trọng với người khác?", image: "cards/card2.png" },
+      { label: "Lá 3", question: "Câu hỏi 3: Bạn có nghĩ rằng sự trung thực là yếu tố quan trọng nhất trong một mối quan hệ?", image: "cards/card3.png" },
+      { label: "Lá 4", question: "Câu hỏi 4: Bạn nghĩ gì về việc đôi khi yêu thương một ai đó mà không thể ở bên họ?", image: "cards/card4.png" },
+      { label: "Lá 5", question: "Câu hỏi 5: Làm thế nào để bạn thể hiện sự quan tâm đến người yêu của mình?", image: "cards/card5.png" },
+      { label: "Lá 6", question: "Câu hỏi 6: Nếu bạn có thể thay đổi một điều trong mối quan hệ của mình, bạn sẽ thay đổi gì?", image: "cards/card6.png" },
+      { label: "Lá 7", question: "Câu hỏi 7: Bạn cảm thấy thế nào về sự thay đổi trong tình yêu?", image: "cards/card7.png" },
+      { label: "Lá 8", question: "Câu hỏi 8: Tình yêu có thể cứu rỗi một người không?", image: "cards/card8.png" },
+      { label: "Lá 9", question: "Câu hỏi 9: Bạn có nghĩ rằng một người có thể yêu người khác mà không cần có một mối quan hệ chính thức?", image: "cards/card9.png" },
+      { label: "Lá 10", question: "Câu hỏi 10: Mối quan hệ nào là quan trọng nhất trong cuộc sống của bạn?", image: "cards/card10.png" },
+      { label: "Lá 11", question: "Câu hỏi 11: Bạn có nghĩ rằng tình yêu chỉ thực sự đẹp khi được thử thách?", image: "cards/card11.png" },
+      { label: "Lá 12", question: "Câu hỏi 12: Bạn có thể tha thứ cho người yêu cũ không?", image: "cards/card12.png" },
+      { label: "Lá 13", question: "Câu hỏi 13: Bạn có nghĩ rằng yêu nhau lâu dài là điều không thể?", image: "cards/card13.png" },
+      { label: "Lá 14", question: "Câu hỏi 14: Mối quan hệ hoàn hảo có thật không?", image: "cards/card14.png" },
+      { label: "Lá 15", question: "Câu hỏi 15: Bạn có thể yêu một người mà không có cùng sở thích với họ?", image: "cards/card15.png" },
+      { label: "Lá 16", question: "Câu hỏi 16: Tình yêu có thể thay đổi cuộc sống của một người?", image: "cards/card16.png" },
+      { label: "Lá 17", question: "Câu hỏi 17: Bạn có nghĩ rằng tình yêu là lý do để hy sinh?", image: "cards/card17.png" },
+      { label: "Lá 18", question: "Câu hỏi 18: Bạn có tin vào định mệnh trong tình yêu?", image: "cards/card18.png" },
+      { label: "Lá 19", question: "Câu hỏi 19: Bạn có cảm thấy sợ khi yêu?", image: "cards/card19.png" },
+      { label: "Lá 20", question: "Câu hỏi 20: Bạn nghĩ gì về tình yêu không có lời nói?", image: "cards/card20.png" },
+      { label: "Lá 21", question: "Câu hỏi 21: Yêu một người thực sự khó khăn như thế nào?", image: "cards/card21.png" },
+      { label: "Lá 22", question: "Câu hỏi 22: Bạn đã từng yêu một người mà không nhận lại tình cảm?", image: "cards/card22.png" },
+      { label: "Lá 23", question: "Câu hỏi 23: Bạn nghĩ tình yêu có thể vượt qua mọi khó khăn?", image: "cards/card23.png" },
+      { label: "Lá 24", question: "Câu hỏi 24: Bạn có thấy tình yêu là điều quan trọng nhất trong cuộc sống không?", image: "cards/card24.png" },
+      { label: "Lá 25", question: "Câu hỏi 25: Bạn có nghĩ rằng tình yêu là một lựa chọn hay là sự sắp đặt?", image: "cards/card25.png" },
+      { label: "Lá 26", question: "Câu hỏi 26: Bạn nghĩ thế nào về việc yêu một người bạn chưa từng gặp?", image: "cards/card26.png" },
+      { label: "Lá 27", question: "Câu hỏi 27: Tình yêu có thể là động lực giúp bạn vượt qua những khó khăn trong cuộc sống?", image: "cards/card27.png" },
+      { label: "Lá 28", question: "Câu hỏi 28: Nếu bạn có thể dành một lời nói cuối cùng cho người yêu cũ, bạn sẽ nói gì?", image: "cards/card28.png" },
+      { label: "Lá 29", question: "Câu hỏi 29: Bạn nghĩ thế nào về tình yêu thời đại số?", image: "cards/card29.png" },
+      { label: "Lá 30", question: "Câu hỏi 30: Tình yêu có thể thay đổi một người như thế nào?", image: "cards/card30.png" },
+      { label: "Lá 31", question: "Câu hỏi 31: Bạn có thể yêu một người mà không có sự đồng cảm?", image: "cards/card31.png" },
+      { label: "Lá 32", question: "Câu hỏi 32: Bạn sẽ làm gì nếu tình yêu của bạn không còn như xưa?", image: "cards/card32.png" },
+      { label: "Lá 33", question: "Câu hỏi 33: Bạn có nghĩ rằng sự thay đổi trong mối quan hệ là điều cần thiết?", image: "cards/card33.png" },
+      { label: "Lá 34", question: "Câu hỏi 34: Bạn sẽ làm gì nếu phải chọn giữa tình yêu và sự nghiệp?", image: "cards/card34.png" },
+      { label: "Lá 35", question: "Câu hỏi 35: Bạn có nghĩ rằng tình yêu là một trò chơi?", image: "cards/card35.png" },
+      { label: "Lá 36", question: "Câu hỏi 36: Bạn có thể yêu một người mà không cần sự chấp nhận của gia đình?", image: "cards/card36.png" },
+      { label: "Lá 37", question: "Câu hỏi 37: Bạn có thể tha thứ cho sự lừa dối trong tình yêu không?", image: "cards/card37.png" },
+      { label: "Lá 38", question: "Câu hỏi 38: Tình yêu có thể làm cho bạn trưởng thành hơn không?", image: "cards/card38.png" },
+      { label: "Lá 39", question: "Câu hỏi 39: Bạn nghĩ gì về tình yêu một lần nữa?", image: "cards/card39.png" },
+      { label: "Lá 40", question: "Câu hỏi 40: Bạn có thể tha thứ cho người yêu cũ sau khi chia tay?", image: "cards/card40.png" },
+      { label: "Lá 41", question: "Câu hỏi 41: Bạn nghĩ sao về việc kết hôn vì tình yêu?", image: "cards/card41.png" },
+      { label: "Lá 42", question: "Câu hỏi 42: Bạn nghĩ rằng tình yêu là sự hi sinh?", image: "cards/card42.png" },
+      { label: "Lá 43", question: "Câu hỏi 43: Bạn có nghĩ rằng tình yêu là một phép màu?", image: "cards/card43.png" },
+      { label: "Lá 44", question: "Câu hỏi 44: Bạn nghĩ sao về sự khác biệt trong tình yêu?", image: "cards/card44.png" },
+      { label: "Lá 45", question: "Câu hỏi 45: Bạn có nghĩ rằng tình yêu là sự cho đi?", image: "cards/card45.png" },
+      { label: "Lá 46", question: "Câu hỏi 46: Bạn có thể yêu một người bạn không hoàn hảo?", image: "cards/card46.png" },
+      { label: "Lá 47", question: "Câu hỏi 47: Bạn có thể yêu một người không yêu mình?", image: "cards/card47.png" },
+      { label: "Lá 48", question: "Câu hỏi 48: Bạn có thể tin tưởng vào tình yêu?", image: "cards/card48.png" },
+      { label: "Lá 49", question: "Câu hỏi 49: Tình yêu có thể là một cuộc phiêu lưu không?", image: "cards/card49.png" },
+      { label: "Lá 50", question: "Câu hỏi 50: Bạn có thể yêu một người khác giới mà không yêu?", image: "cards/card50.png" }
     ];
 
     let roomId = "";
