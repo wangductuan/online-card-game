@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎴 Rút Bài Câu Hỏi Online</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    img.card-img {
+      width: 120px;
+      border: 2px solid #444;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: none;
+    }
+    .log {
+      font-family: monospace;
+      margin-top: 20px;
+    }
+    #gameArea {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎴 Trò Chơi Rút Bài Câu Hỏi Online</h1>
+
+  <div id="setupArea">
+    <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
+    <button onclick="joinRoom()">Tham gia phòng</button>
+  </div>
+
+  <div id="gameArea">
+    <h2>Phòng: <span id="currentRoom"></span></h2>
+    <div><strong id="counter">Còn lại: 0 / 0 lá</strong></div>
+
+    <button onclick="drawCard(1)" id="btn1">🧔 Người 1 rút</button>
+    <div id="card1"><img src="back.png" class="card-img" alt="Bài úp" /></div>
+    <div id="question1" style="margin: 10px 0; font-weight: bold;"></div>
+    <br />
+
+    <button onclick="drawCard(2)" id="btn2">👩 Người 2 rút</button>
+    <div id="card2"><img src="back.png" class="card-img" alt="Bài úp" /></div>
+    <div id="question2" style="margin: 10px 0; font-weight: bold;"></div>
+    <br />
+
+    <button id="nextBtn" onclick="resetTurn()">🔄 Chơi Tiếp</button>
+
+    <div class="log">
+      <h3>📜 Những Lá Đã Rút:</h3>
+      <ul id="drawnLog"></ul>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    // Firebase SDK imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCig0Z7mku3A0920dAAmJ8QOAGSY2qov34",
+      authDomain: "wang-2025.firebaseapp.com",
+      databaseURL: "https://wang-2025-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "wang-2025",
+      storageBucket: "wang-2025.appspot.com",
+      messagingSenderId: "112722745227",
+      appId: "1:112722745227:web:133ac984a65668b187018e",
+      measurementId: "G-8W4VN0QM5T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const cards = Array.from({ length: 49 }, (_, i) => ({
+      id: i + 1,
+      label: `Lá ${i + 1}`,
+      question: `Câu hỏi ${i + 1}`,
+      image: `cards/card${i + 1}.png`
+    }));
+
+    let currentRoom = '';
+    let drawnCards = [];
+
+    function joinRoom() {
+      const room = document.getElementById("roomId").value.trim();
+      if (!room) return alert("Vui lòng nhập mã phòng!");
+
+      currentRoom = room;
+      document.getElementById("setupArea").style.display = "none";
+      document.getElementById("gameArea").style.display = "block";
+      document.getElementById("currentRoom").textContent = currentRoom;
+
+      const roomRef = ref(db, `rooms/${currentRoom}`);
+
+      // Lắng nghe thay đổi dữ liệu
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data?.lastCard) {
+          const { card, player } = data.lastCard;
+          displayCard(card, player);
+        }
+        if (data?.drawnCards) {
+          drawnCards = data.drawnCards;
+          updateLog();
+          updateCounter();
+        }
+      });
+
+      // Nếu phòng chưa có thì khởi tạo
+      get(roomRef).then((snap) => {
+        if (!snap.exists()) {
+          set(roomRef, {
+            drawnCards: [],
+            remainingCards: [...Array(cards.length).keys()].map(i => i + 1),
+            lastCard: null
+          });
+        }
+      });
+    }
+
+    function drawCard(player) {
+      const roomRef = ref(db, `rooms/${currentRoom}`);
+      get(roomRef).then((snapshot) => {
+        const data = snapshot.val();
+        if (!data || !data.remainingCards.length) {
+          alert("Hết bài rồi!");
+          return;
+        }
+
+        const remaining = data.remainingCards;
+        const index = Math.floor(Math.random() * remaining.length);
+        const cardId = remaining.splice(index, 1)[0];
+        const card = cards.find(c => c.id === cardId);
+
+        const updatedDrawn = [...(data.drawnCards || []), card];
+
+        update(roomRef, {
+          drawnCards: updatedDrawn,
+          remainingCards: remaining,
+          lastCard: { card, player }
+        });
+      });
+    }
+
+    function displayCard(card, player) {
+      const imgHTML = `<img src="${card.image}" class="card-img" alt="${card.label}">`;
+      const text = card.question;
+      if (player === 1) {
+        document.getElementById("card1").innerHTML = imgHTML;
+        document.getElementById("question1").textContent = text;
+        document.getElementById("btn1").disabled = true;
+      } else {
+        document.getElementById("card2").innerHTML = imgHTML;
+        document.getElementById("question2").textContent = text;
+        document.getElementById("btn2").disabled = true;
+      }
+
+      if (document.getElementById("btn1").disabled && document.getElementById("btn2").disabled) {
+        document.getElementById("nextBtn").style.display = "block";
+      }
+    }
+
+    function resetTurn() {
+      document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+      document.getElementById("question1").textContent = "";
+      document.getElementById("question2").textContent = "";
+      document.getElementById("btn1").disabled = false;
+      document.getElementById("btn2").disabled = false;
+      document.getElementById("nextBtn").style.display = "none";
+    }
+
+    function updateLog() {
+      const log = document.getElementById("drawnLog");
+      log.innerHTML = "";
+      drawnCards.forEach(card => {
+        const li = document.createElement("li");
+        li.textContent = `${card.label}: ${card.question}`;
+        log.appendChild(li);
+      });
+    }
+
+    function updateCounter() {
+      document.getElementById("counter").textContent = `Còn lại: ${49 - drawnCards.length} / 49 lá`;
+    }
+  </script>
+</body>
+</html>
