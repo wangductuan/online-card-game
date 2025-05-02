@@ -30,6 +30,218 @@ const database = firebase.database();
 
 // --- Kết thúc Khởi tạo Firebase ---
 
+// ... (Các phần khởi tạo Firebase, biến cards, v.v. ở trên) ...
+
+// Biến toàn cục để lưu ID của phòng chơi hiện tại mà người dùng đang tham gia
+let currentGameRoomId = null;
+
+function startGame() {
+  // Ẩn khu vực thiết lập, hiển thị khu vực game UI
+  document.getElementById("setupArea").style.display = "none";
+  document.getElementById("gameArea").style.display = "block";
+
+  // --- Logic game online mới bắt đầu ở đây ---
+
+  // Bước 1: Tạo một tham chiếu mới cho một phòng chơi trong node 'gameRooms'
+  // Sử dụng push() để tạo một ID duy nhất cho phòng chơi mới
+  const newGameRoomRef = database.ref('gameRooms').push();
+
+  // Lấy ID tự động tạo này. Chúng ta sẽ cần nó sau này.
+  currentGameRoomId = newGameRoomRef.key;
+  console.log("Đã tạo phòng chơi mới với ID:", currentGameRoomId);
+
+  // Bước 2: Xáo trộn bộ bài đầy đủ
+  const shuffledCards = shuffleArray([...cards]); // Tạo bản sao của mảng 'cards' trước khi xáo trộn
+
+  // Bước 3: Chuẩn bị trạng thái ban đầu của phòng chơi
+  const initialGameState = {
+    // Lưu ý: Để xác định người chơi thực tế, bạn sẽ cần Firebase Authentication.
+    // Tạm thời dùng placeholder hoặc logic đơn giản.
+    // playerId1: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous1', // Nếu dùng Auth
+    // playerId2: null, // Chờ người chơi thứ 2 tham gia
+    player1: { id: 'player1_placeholder', name: 'Anh ấy' }, // Placeholder
+    player2: { id: 'player2_placeholder', name: 'Cô ấy' }, // Placeholder
+    status: 'waiting', // Trạng thái ban đầu: chờ người chơi 2
+    currentPlayerId: null, // Chưa có lượt cho đến khi đủ người chơi
+    deck: shuffledCards.map(card => card.id), // Chỉ lưu ID các lá bài còn lại
+    drawnCards: [], // Mảng rỗng các lá đã rút
+    currentTurn: { // Trạng thái lá bài rút trong lượt hiện tại
+      card1: null, // Lá bài của người chơi 1 trong lượt này
+      card2: null  // Lá bài của người chơi 2 trong lượt này
+    },
+    createdAt: firebase.database.ServerValue.TIMESTAMP // Ghi lại thời điểm tạo phòng
+  };
+
+  // Bước 4: Lưu trạng thái ban đầu này vào database dưới ID phòng vừa tạo
+  newGameRoomRef.set(initialGameState)
+    .then(() => {
+      console.log("Đã lưu trạng thái game ban đầu vào database.");
+      // Sau khi tạo phòng, bạn sẽ cần logic để người chơi thứ 2 tham gia
+      // và thiết lập listener để theo dõi trạng thái phòng
+      listenForGameState(currentGameRoomId); // Bắt đầu lắng nghe thay đổi
+    })
+    .catch((error) => {
+      console.error("Lỗi khi lưu trạng thái game vào database:", error);
+      // Xử lý lỗi (ví dụ: hiển thị thông báo cho người dùng)
+      alert("Không thể bắt đầu game. Vui lòng thử lại!");
+      // Có thể ẩn lại khu vực game và hiển thị lại khu vực setup
+      document.getElementById("setupArea").style.display = "block";
+      document.getElementById("gameArea").style.display = "none";
+    });
+
+  // --- Kết thúc Logic game online mới ---
+
+  // Các dòng này sẽ được gọi sau khi database cập nhật và listener nhận được dữ liệu
+  // updateCounter();
+  // document.getElementById("btn1").disabled = false;
+  // document.getElementById("btn2").disabled = false;
+  // Nút ban đầu có thể bị vô hiệu hóa và chỉ bật lên khi đủ 2 người và đến lượt
+}
+
+// Hàm helper để xáo trộn mảng (Thuật toán Fisher-Yates)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi vị trí
+  }
+  return array;
+}
+
+// --- Cần thêm hàm lắng nghe trạng thái game từ database ---
+function listenForGameState(roomId) {
+    // Lấy tham chiếu đến node của phòng game cụ thể
+    const gameRoomRef = database.ref('gameRooms/' + roomId);
+
+    // Thiết lập listener để lắng nghe các thay đổi giá trị
+    gameRoomRef.on('value', (snapshot) => {
+        const gameData = snapshot.val(); // Lấy toàn bộ dữ liệu của phòng game
+
+        if (gameData) {
+            console.log("Dữ liệu game đã thay đổi:", gameData);
+            // --- Cập nhật giao diện người dùng dựa trên dữ liệu gameData ---
+
+            // Ví dụ: Cập nhật bộ đếm bài
+            const remainingCount = gameData.deck ? gameData.deck.length : 0;
+            document.getElementById("counter").textContent = `Còn lại: ${remainingCount} / ${cards.length} lá`;
+
+            // Ví dụ: Hiển thị lá bài đã rút trong lượt hiện tại
+            const currentTurn = gameData.currentTurn;
+            if (currentTurn) {
+                 // Tìm thông tin đầy đủ của lá bài từ mảng 'cards' gốc
+                 const card1Info = cards.find(c => c.id === currentTurn.card1?.id);
+                 const card2Info = cards.find(c => c.id === currentTurn.card2?.id);
+
+                 if (card1Info) {
+                     document.getElementById("card1").innerHTML = `<img src="${card1Info.image}" class="card-img" alt="${card1Info.label}">`;
+                     document.getElementById("question1").textContent = card1Info.question;
+                 } else {
+                     // Hiển thị bài úp nếu chưa rút hoặc đã reset lượt
+                     document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+                     document.getElementById("question1").textContent = "";
+                 }
+
+                 if (card2Info) {
+                     document.getElementById("card2").innerHTML = `<img src="${card2Info.image}" class="card-img" alt="${card2Info.label}">`;
+                     document.getElementById("question2").textContent = card2Info.question;
+                 } else {
+                      // Hiển thị bài úp nếu chưa rút hoặc đã reset lượt
+                     document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" alt="Bài úp">';
+                     document.getElementById("question2").textContent = "";
+                 }
+            }
+
+            // Ví dụ: Cập nhật trạng thái nút Rút bài (sẽ phức tạp hơn với lượt chơi thực tế)
+            // Tạm thời giữ logic cũ để hiển thị nút Chơi Tiếp
+             if (currentTurn && currentTurn.card1 && currentTurn.card2) {
+                document.getElementById("nextBtn").style.display = "block";
+                 document.getElementById("btn1").disabled = true; // Tạm thời vô hiệu hóa sau khi rút
+                 document.getElementById("btn2").disabled = true; // Tạm thời vô hiệu hóa sau khi rút
+             } else {
+                 document.getElementById("nextBtn").style.display = "none";
+                 // Logic để bật/tắt nút dựa vào lượt chơi thực tế (sẽ làm sau)
+                 // Ví dụ: if (gameData.currentPlayerId === myUserId) { btn.disabled = false; }
+             }
+
+            // Ví dụ: Cập nhật nhật ký bài đã rút (đọc từ mảng drawnCards trong DB)
+            const drawnLogElement = document.getElementById("drawnLog");
+            drawnLogElement.innerHTML = ""; // Xóa nội dung cũ
+            if (gameData.drawnCards) {
+                 // Lấy thông tin đầy đủ của các lá bài đã rút
+                 const fullDrawnCardsInfo = gameData.drawnCards.map(drawnCard => {
+                     const cardInfo = cards.find(c => c.id === drawnCard.id);
+                     return cardInfo ? `${cardInfo.label}: ${cardInfo.question} (Rút bởi: ${drawnCard.drawnBy})` : `Lá ${drawnCard.id} không rõ thông tin`;
+                 });
+
+                 fullDrawnCardsInfo.forEach(logEntry => {
+                     const listItem = document.createElement("li");
+                     listItem.textContent = logEntry;
+                     drawnLogElement.appendChild(listItem);
+                 });
+            }
+
+
+        } else {
+            // Xử lý trường hợp phòng game không tồn tại nữa (ví dụ: bị xóa)
+            console.log("Phòng game không tồn tại.");
+            // Có thể hiển thị thông báo và đưa người dùng về màn hình setup
+        }
+    }, (error) => {
+        // Xử lý lỗi khi lắng nghe database
+        console.error("Lỗi khi lắng nghe database:", error);
+    });
+}
+
+// --- Sửa đổi hàm drawCard để ghi vào database ---
+function drawCard(player) {
+   if (!currentGameRoomId) {
+       console.error("Chưa tham gia hoặc tạo phòng game.");
+       return; // Không làm gì nếu chưa có phòng game
+   }
+
+   // Lấy tham chiếu đến node của phòng game hiện tại
+   const gameRoomRef = database.ref('gameRooms/' + currentGameRoomId);
+
+   // Để đảm bảo an toàn và xử lý lượt chơi, chúng ta nên sử dụng transaction
+   // hoặc Cloud Functions. Tuy nhiên, để đơn giản hóa việc nhập dữ liệu ban đầu,
+   // chúng ta sẽ viết logic trực tiếp (LƯU Ý: Điều này dễ bị race condition
+   // nếu hai người chơi cùng cố gắng rút bài đồng thời).
+   // Cách tốt hơn sẽ cần kiểm tra lượt chơi và sử dụng transaction.
+
+   // Tạm thời, đọc dữ liệu hiện tại của phòng game
+   gameRoomRef.once('value') // Đọc dữ liệu MỘT LẦN
+     .then(snapshot => {
+       const gameData = snapshot.val();
+       if (gameData && gameData.deck && gameData.deck.length > 0) {
+         // Lấy lá bài ngẫu nhiên từ mảng deck ID trong database
+         const deckIds = gameData.deck;
+         const randomIndex = Math.floor(Math.random() * deckIds.length);
+         const drawnCardId = deckIds[randomIndex];
+
+         // Tìm thông tin đầy đủ của lá bài từ mảng 'cards' gốc
+         const drawnCardInfo = cards.find(c => c.id === drawnCardId);
+
+         if (!drawnCardInfo) {
+             console.error("Không tìm thấy thông tin lá bài với ID:", drawnCardId);
+             return;
+         }
+
+         // Tạo bản sao của deck để xóa lá bài đã rút
+         const updatedDeckIds = [...deckIds];
+         updatedDeckIds.splice(randomIndex, 1); // Xóa lá bài đã rút
+
+         // Tạo đối tượng lá bài đã rút để lưu vào drawnCards
+         const drawnCardForLog = {
+             id: drawnCardInfo.id,
+             question: drawnCardInfo.question,
+             // drawnBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous_player_' + player, // ID người dùng thực tế
+             drawnBy: 'player_' + player, // Placeholder người chơi
+             timestamp: firebase.database.ServerValue.TIMESTAMP
+         };
+
+         // Cập nhật trạng thái trong database
+         // Lưu ý: Sử dụng update() để chỉ
+
+
 
 // Dữ liệu bài (vẫn giữ nguyên trong mã này để dễ tham chiếu,
 // nhưng trạng thái bộ bài thực tế sẽ được quản lý trong Firebase DB)
