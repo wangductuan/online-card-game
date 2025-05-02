@@ -79,6 +79,20 @@
       background-color: #0b7dda;
     }
 
+    .history {
+      margin-top: 20px;
+    }
+
+    .history ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .history li {
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .card-img {
@@ -125,10 +139,12 @@
 <body>
   <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
   <p>Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
+  
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button><br><br>
   </div>
+
   <div id="gameArea" class="hidden">
     <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
     <button onclick="drawCard(1)">🧔 Người chơi 1 rút</button>
@@ -140,14 +156,11 @@
     <div id="question2"></div>
     <br>
     <button onclick="resetTurn()">🔄 Tiếp tục</button>
-    <br><br>
-    
-    <!-- Thống kê bài còn lại -->
-    <p>Số bài còn lại: <span id="remainingCardsCount">40</span></p>
-
-    <!-- Lịch sử rút bài -->
-    <h3>Lịch sử rút bài</h3>
-    <ul id="historyList"></ul>
+    <div class="history">
+      <h3>Lịch sử rút bài:</h3>
+      <ul id="historyList"></ul>
+    </div>
+    <p id="remainingCardsCount">Số bài còn lại: <span id="cardsLeft"></span></p>
   </div>
 
   <script type="module">
@@ -169,15 +182,15 @@
     const db = getDatabase(app);
 
     const allCards = [
-      { id: 1, label: "Lá 1", question: "Nếu chúng ta có thể đi du lịch đâu đó, bạn muốn đi đâu?", image: "cards/card1.png" },
-      { id: 2, label: "Lá 2", question: "Món ăn yêu thích nhất của bạn là gì?", image: "cards/card2.png" },
-      { id: 3, label: "Lá 3", question: "Khi nào bạn cảm thấy hạnh phúc nhất bên tôi?", image: "cards/card3.png" },
-      { id: 4, label: "Lá 4", question: "Bạn thích nhất điều gì ở tôi?", image: "cards/card4.png" },
-      // ... các lá bài khác
+      { image: 'card1.png', question: 'Câu hỏi 1' },
+      { image: 'card2.png', question: 'Câu hỏi 2' },
+      { image: 'card3.png', question: 'Câu hỏi 3' },
+      // Thêm danh sách bài còn lại vào đây
     ];
 
     let roomId = "";
     let remainingCards = [...allCards];
+    let history = [];
 
     function createRoom() {
       const randomId = 'room_' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -200,7 +213,11 @@
     };
 
     window.drawCard = function(player) {
-      if (remainingCards.length === 0) return alert("Hết bài rồi!");
+      if (remainingCards.length === 0) {
+        alert("Hết bài rồi!");
+        return;
+      }
+
       const idx = Math.floor(Math.random() * remainingCards.length);
       const card = remainingCards.splice(idx, 1)[0];
       set(ref(db, "rooms/" + roomId + "/lastDraw"), { player, card });
@@ -219,21 +236,22 @@
       }
     }
 
-    function resetTurn() {
+    window.resetTurn = function () {
       document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" />';
       document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" />';
       document.getElementById("question1").textContent = "";
       document.getElementById("question2").textContent = "";
-    }
+    };
 
     function updateRemainingCardsCount() {
-      document.getElementById("remainingCardsCount").textContent = remainingCards.length;
+      document.getElementById("cardsLeft").textContent = remainingCards.length;
     }
 
     function updateHistory(player, card) {
+      history.push({ player, card });
       const historyList = document.getElementById("historyList");
       const historyItem = document.createElement("li");
-      historyItem.textContent = `Người chơi ${player} đã rút: ${card.label} - Câu hỏi: ${card.question}`;
+      historyItem.textContent = `Người chơi ${player}: ${card.question}`;
       historyList.appendChild(historyItem);
     }
   </script>
