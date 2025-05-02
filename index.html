@@ -2,18 +2,11 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rút Bài Thấu Hiểu Love Again by Wang 8</title>
+  <title>🎴 Rút Bài Câu Hỏi Online</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      margin: 20px 0;
     }
     img.card-img {
       width: 120px;
@@ -30,38 +23,14 @@
     .log {
       font-family: monospace;
       margin-top: 20px;
-      max-height: 200px;
-      overflow-y: auto;
     }
     #gameArea {
       display: none;
     }
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      img.card-img {
-        width: 100px;
-      }
-      #btn1, #btn2 {
-        width: 100%;
-        font-size: 14px;
-        padding: 10px;
-      }
-    }
-    /* Mobile View */
-    @media (max-width: 400px) {
-      h1 {
-        font-size: 20px;
-      }
-      #nextBtn {
-        width: 100%;
-        font-size: 16px;
-      }
-    }
   </style>
 </head>
 <body>
-  <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
-  <p>Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
+  <h1>🎴 Trò Chơi Rút Bài Câu Hỏi Online</h1>
 
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
@@ -70,7 +39,7 @@
 
   <div id="gameArea">
     <h2>Phòng: <span id="currentRoom"></span></h2>
-    <div><strong id="counter">Còn lại: 0 / 49 lá</strong></div>
+    <div><strong id="counter">Còn lại: 0 / 0 lá</strong></div>
 
     <button onclick="drawCard(1)" id="btn1">🧔 Người 1 rút</button>
     <div id="card1"><img src="back.png" class="card-img" alt="Bài úp" /></div>
@@ -92,6 +61,7 @@
 
   <!-- Firebase -->
   <script type="module">
+    // Firebase SDK imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
@@ -130,6 +100,7 @@
 
       const roomRef = ref(db, `rooms/${currentRoom}`);
 
+      // Lắng nghe thay đổi dữ liệu
       onValue(roomRef, (snapshot) => {
         const data = snapshot.val();
         if (data?.lastCard) {
@@ -143,6 +114,7 @@
         }
       });
 
+      // Nếu phòng chưa có thì khởi tạo
       get(roomRef).then((snap) => {
         if (!snap.exists()) {
           set(roomRef, {
