@@ -1,37 +1,35 @@
+
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rút Bài 2 Người Online</title>
+  <title>Rút Bài Online 2 Người</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 20px; }
-    .card-img { width: 100px; border: 2px solid #444; border-radius: 8px; margin-top: 10px; }
-    .hidden { display: none; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f2f2f2; }
+    #setupArea, #gameArea { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    button { margin-top: 10px; padding: 10px 20px; font-size: 16px; }
+    #diceResult { font-size: 24px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>🎴 Game Rút Bài Câu Hỏi Online</h1>
   <div id="setupArea">
-    <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
-    <button onclick="joinRoom()">Tham gia phòng</button><br><br>
-    <button onclick="createRoom()">🎲 Tạo Phòng Ngẫu Nhiên</button>
+    <h2>🧑‍🤝‍🧑 Tạo hoặc Vào Phòng</h2>
+    <button onclick="createRoom()">🆕 Tạo Phòng Mới</button><br><br>
+    <input type="text" id="roomInput" placeholder="Nhập mã phòng...">
+    <button onclick="joinRoom()">🔗 Tham Gia Phòng</button>
+    <div id="shareLink" style="margin-top: 10px;"></div>
   </div>
-  <div id="gameArea" class="hidden">
-    <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
-    <button onclick="drawCard(1)">🧔 Người chơi 1 rút</button>
-    <div id="card1"><img src="back.png" class="card-img" /></div>
-    <div id="question1"></div>
-    <br>
-    <button onclick="drawCard(2)">👩 Người chơi 2 rút</button>
-    <div id="card2"><img src="back.png" class="card-img" /></div>
-    <div id="question2"></div>
-    <br>
-    <button onclick="resetTurn()">🔄 Tiếp tục</button>
+
+  <div id="gameArea" style="display:none;">
+    <h2>🎲 Đổ Xúc Xắc</h2>
+    <button onclick="rollDice()">🎲 Đổ xúc xắc</button>
+    <div id="diceResult"></div>
+    <div id="drawResult" style="margin-top: 20px;"></div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCig0Z7mku3A0920dAAmJ8QOAGSY2qov34",
@@ -47,60 +45,49 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const allCards = [
-      { label: "Lá 1", question: "Câu hỏi 1", image: "cards/card1.png" },
-      { label: "Lá 2", question: "Câu hỏi 2", image: "cards/card2.png" },
-      { label: "Lá 3", question: "Câu hỏi 3", image: "cards/card3.png" },
-      { label: "Lá 4", question: "Câu hỏi 4", image: "cards/card4.png" },
-      { label: "Lá 5", question: "Câu hỏi 5", image: "cards/card5.png" }
-    ];
-
-    let roomId = "";
-    let remainingCards = [...allCards];
+    let currentRoomId = null;
 
     function createRoom() {
-      const randomId = 'room_' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      document.getElementById("roomId").value = randomId;
+      const roomId = Math.random().toString(36).substring(2, 8);
+      currentRoomId = roomId;
+
+      set(ref(db, `rooms/${roomId}`), {
+        createdAt: Date.now(),
+        players: []
+      }).then(() => {
+        const link = `${location.origin}${location.pathname}?room=${roomId}`;
+        document.getElementById("shareLink").innerHTML = `🔗 Link phòng: <a href="${link}" target="_blank">${link}</a>`;
+      });
+    }
+
+    function joinRoom() {
+      const roomId = document.getElementById("roomInput").value.trim();
+      if (!roomId) return alert("Vui lòng nhập mã phòng!");
+
+      get(child(ref(db), `rooms/${roomId}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          currentRoomId = roomId;
+          alert("Tham gia phòng thành công!");
+          document.getElementById("setupArea").style.display = "none";
+          document.getElementById("gameArea").style.display = "block";
+        } else {
+          alert("Phòng không tồn tại.");
+        }
+      });
+    }
+
+    function rollDice() {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("diceResult").innerText = `Bạn đổ được: 🎲 ${roll}`;
+      document.getElementById("drawResult").innerText = "Người thua sẽ phải rút bài!";
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomFromUrl = urlParams.get("room");
+    if (roomFromUrl) {
+      document.getElementById("roomInput").value = roomFromUrl;
       joinRoom();
     }
-
-    window.joinRoom = function () {
-      roomId = document.getElementById("roomId").value.trim();
-      if (!roomId) return alert("Vui lòng nhập mã phòng!");
-      document.getElementById("setupArea").classList.add("hidden");
-      document.getElementById("gameArea").classList.remove("hidden");
-      document.getElementById("roomDisplay").textContent = roomId;
-
-      const roomRef = ref(db, "rooms/" + roomId + "/lastDraw");
-      onValue(roomRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.player && data.card) showCard(data.player, data.card);
-      });
-    };
-
-    window.drawCard = function(player) {
-      if (remainingCards.length === 0) return alert("Hết bài rồi!");
-      const idx = Math.floor(Math.random() * remainingCards.length);
-      const card = remainingCards.splice(idx, 1)[0];
-      set(ref(db, "rooms/" + roomId + "/lastDraw"), { player, card });
-    };
-
-    function showCard(player, card) {
-      if (player === 1) {
-        document.getElementById("card1").innerHTML = `<img src="${card.image}" class="card-img" />`;
-        document.getElementById("question1").textContent = card.question;
-      } else {
-        document.getElementById("card2").innerHTML = `<img src="${card.image}" class="card-img" />`;
-        document.getElementById("question2").textContent = card.question;
-      }
-    }
-
-    window.resetTurn = function () {
-      document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" />';
-      document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" />';
-      document.getElementById("question1").textContent = "";
-      document.getElementById("question2").textContent = "";
-    };
   </script>
 </body>
 </html>
