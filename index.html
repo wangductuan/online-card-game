@@ -79,20 +79,6 @@
       background-color: #0b7dda;
     }
 
-    .history {
-      margin-top: 20px;
-    }
-
-    .history ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .history li {
-      margin-bottom: 10px;
-      font-size: 1.1em;
-    }
-
     /* Responsive Design */
     @media (max-width: 768px) {
       .card-img {
@@ -139,12 +125,10 @@
 <body>
   <h1>🎴 Rút Bài Thấu Hiểu Love Again by Wang 8</h1>
   <p>Trò chơi này giúp bạn và người chơi khám phá những câu hỏi thú vị về tình yêu và sự hiểu biết lẫn nhau. Cùng nhau trải nghiệm và thấu hiểu sâu sắc hơn qua mỗi lá bài.</p>
-  
   <div id="setupArea">
     <input type="text" id="roomId" placeholder="Nhập mã phòng (VD: room123)" />
     <button onclick="joinRoom()">Tham gia phòng</button><br><br>
   </div>
-
   <div id="gameArea" class="hidden">
     <p><strong>Phòng:</strong> <span id="roomDisplay"></span></p>
     <button onclick="drawCard(1)">🧔 Người chơi 1 rút</button>
@@ -156,11 +140,11 @@
     <div id="question2"></div>
     <br>
     <button onclick="resetTurn()">🔄 Tiếp tục</button>
-    <div class="history">
-      <h3>Lịch sử rút bài:</h3>
-      <ul id="historyList"></ul>
-    </div>
-    <p id="remainingCardsCount">Số bài còn lại: <span id="cardsLeft"></span></p>
+
+    <h3>Lịch sử rút bài</h3>
+    <ul id="historyList"></ul>
+
+    <p><strong>Bài còn lại: </strong><span id="cardsLeft"></span></p>
   </div>
 
   <script type="module">
@@ -182,59 +166,17 @@
     const db = getDatabase(app);
 
     const allCards = [
-      { image: 'card1.png', question: 'Câu hỏi 1: Bạn nghĩ thế nào về tình yêu?' },
-      { image: 'card2.png', question: 'Câu hỏi 2: Bạn có tin vào tình yêu từ cái nhìn đầu tiên không?' },
-      { image: 'card3.png', question: 'Câu hỏi 3: Bạn thích làm gì trong một mối quan hệ?' },
-      { image: 'card4.png', question: 'Câu hỏi 4: Bạn nghĩ gì về việc chia sẻ cảm xúc với đối phương?' },
-      { image: 'card5.png', question: 'Câu hỏi 5: Tình yêu có phải là sự hy sinh?' },
-      { image: 'card6.png', question: 'Câu hỏi 6: Bạn sẽ làm gì khi gặp khó khăn trong mối quan hệ?' },
-      { image: 'card7.png', question: 'Câu hỏi 7: Bạn nghĩ gì về sự chung thủy trong tình yêu?' },
-      { image: 'card8.png', question: 'Câu hỏi 8: Bạn nghĩ sự quan tâm lẫn nhau có quan trọng trong một mối quan hệ không?' },
-      { image: 'card9.png', question: 'Câu hỏi 9: Bạn sẽ phản ứng thế nào khi đối phương mắc sai lầm?' },
-      { image: 'card10.png', question: 'Câu hỏi 10: Bạn có sẵn sàng tha thứ khi bị tổn thương trong tình yêu?' },
-      { image: 'card11.png', question: 'Câu hỏi 11: Bạn nghĩ tình yêu có thể thay đổi con người không?' },
-      { image: 'card12.png', question: 'Câu hỏi 12: Điều gì làm bạn cảm thấy yêu thương và được yêu thương nhất?' },
-      { image: 'card13.png', question: 'Câu hỏi 13: Bạn nghĩ sao về việc duy trì một mối quan hệ lâu dài?' },
-      { image: 'card14.png', question: 'Câu hỏi 14: Bạn có nghĩ rằng tình yêu thực sự tồn tại không?' },
-      { image: 'card15.png', question: 'Câu hỏi 15: Tình yêu có phải là hành động hay cảm xúc?' },
-      { image: 'card16.png', question: 'Câu hỏi 16: Bạn nghĩ một mối quan hệ nên có sự riêng tư đến đâu?' },
-      { image: 'card17.png', question: 'Câu hỏi 17: Bạn sẽ làm gì khi cảm thấy mối quan hệ bị nhạt nhòa?' },
-      { image: 'card18.png', question: 'Câu hỏi 18: Bạn thích những cử chỉ yêu thương nào từ đối phương?' },
-      { image: 'card19.png', question: 'Câu hỏi 19: Bạn có nghĩ rằng tình yêu cần sự tự do?' },
-      { image: 'card20.png', question: 'Câu hỏi 20: Bạn nghĩ gì về việc xây dựng tương lai cùng nhau trong mối quan hệ?' },
-      { image: 'card21.png', question: 'Câu hỏi 21: Bạn có nghĩ rằng tình yêu cần phải có sự hy sinh?' },
-      { image: 'card22.png', question: 'Câu hỏi 22: Điều gì làm bạn cảm thấy an toàn trong một mối quan hệ?' },
-      { image: 'card23.png', question: 'Câu hỏi 23: Bạn sẽ làm gì nếu đối phương thay đổi không như mong đợi?' },
-      { image: 'card24.png', question: 'Câu hỏi 24: Bạn nghĩ gì về sự khác biệt trong mối quan hệ?' },
-      { image: 'card25.png', question: 'Câu hỏi 25: Tình yêu có phải là sự lựa chọn hay là số phận?' },
-      { image: 'card26.png', question: 'Câu hỏi 26: Bạn thích cách thể hiện tình yêu nào?' },
-      { image: 'card27.png', question: 'Câu hỏi 27: Bạn nghĩ sao về sự độc lập trong mối quan hệ?' },
-      { image: 'card28.png', question: 'Câu hỏi 28: Bạn cảm thấy thế nào khi đối phương không chia sẻ cảm xúc với bạn?' },
-      { image: 'card29.png', question: 'Câu hỏi 29: Bạn nghĩ gì về sự tôn trọng trong tình yêu?' },
-      { image: 'card30.png', question: 'Câu hỏi 30: Bạn có sẵn sàng đối diện với thử thách để bảo vệ mối quan hệ không?' },
-      { image: 'card31.png', question: 'Câu hỏi 31: Bạn nghĩ rằng tình yêu cần phải có sự tin tưởng?' },
-      { image: 'card32.png', question: 'Câu hỏi 32: Bạn nghĩ sao về việc học hỏi và phát triển trong tình yêu?' },
-      { image: 'card33.png', question: 'Câu hỏi 33: Bạn sẽ làm gì nếu đối phương không đồng ý với ý tưởng của bạn?' },
-      { image: 'card34.png', question: 'Câu hỏi 34: Bạn nghĩ gì về việc tạo ra những kỷ niệm đáng nhớ trong mối quan hệ?' },
-      { image: 'card35.png', question: 'Câu hỏi 35: Bạn nghĩ sao về việc đi du lịch cùng người yêu?' },
-      { image: 'card36.png', question: 'Câu hỏi 36: Bạn nghĩ tình yêu có thể giúp chúng ta vượt qua khó khăn?' },
-      { image: 'card37.png', question: 'Câu hỏi 37: Bạn nghĩ sao về sự lãng mạn trong tình yêu?' },
-      { image: 'card38.png', question: 'Câu hỏi 38: Bạn thích cảm giác được chăm sóc và yêu thương như thế nào?' },
-      { image: 'card39.png', question: 'Câu hỏi 39: Bạn nghĩ tình yêu có thể giúp chúng ta trưởng thành hơn không?' },
-      { image: 'card40.png', question: 'Câu hỏi 40: Bạn nghĩ sao về việc cùng nhau xây dựng một gia đình?' },
-      { image: 'card41.png', question: 'Câu hỏi 41: Bạn sẽ làm gì nếu phải lựa chọn giữa tình yêu và sự nghiệp?' },
-      { image: 'card42.png', question: 'Câu hỏi 42: Bạn nghĩ gì về sự thay đổi trong mối quan hệ?' },
-      { image: 'card43.png', question: 'Câu hỏi 43: Bạn nghĩ tình yêu có thể tồn tại mãi mãi?' },
-      { image: 'card44.png', question: 'Câu hỏi 44: Bạn sẽ làm gì nếu đối phương yêu cầu bạn thay đổi bản thân?' },
-      { image: 'card45.png', question: 'Câu hỏi 45: Bạn nghĩ sao về việc sống chung trước khi kết hôn?' },
-      { image: 'card46.png', question: 'Câu hỏi 46: Bạn sẽ làm gì nếu đối phương không ủng hộ ước mơ của bạn?' },
-      { image: 'card47.png', question: 'Câu hỏi 47: Bạn nghĩ gì về sự kiên nhẫn trong tình yêu?' },
-      { image: 'card48.png', question: 'Câu hỏi 48: Bạn nghĩ tình yêu có thể làm cho bạn trở thành một người tốt hơn không?' },
-      { image: 'card49.png', question: 'Câu hỏi 49: Bạn sẽ làm gì khi cảm thấy không còn yêu nhau nữa?' }
+      { image: "card1.png", question: "Câu hỏi 1: Bạn nghĩ gì về tình yêu đích thực?" },
+      { image: "card2.png", question: "Câu hỏi 2: Bạn nghĩ điều quan trọng nhất trong một mối quan hệ là gì?" },
+      { image: "card3.png", question: "Câu hỏi 3: Bạn sẽ làm gì khi đối diện với sự phản bội?" },
+      { image: "card4.png", question: "Câu hỏi 4: Bạn nghĩ về sự thấu hiểu trong tình yêu?" },
+      { image: "card5.png", question: "Câu hỏi 5: Bạn nghĩ thế nào về sự chia sẻ trong mối quan hệ?" },
+      { image: "card6.png", question: "Câu hỏi 6: Bạn có nghĩ rằng tình yêu là thứ có thể duy trì suốt đời không?" },
+      // Thêm 43 câu hỏi còn lại tại đây
     ];
 
     let roomId = "";
-    let remainingCards = [...allCards];
+    let remainingCards = [...allCards]; // Lưu trữ bài chưa rút
     let history = [];
 
     function createRoom() {
@@ -245,25 +187,33 @@
 
     window.joinRoom = function () {
       roomId = document.getElementById("roomId").value.trim();
-      if (roomId === "") return alert("Vui lòng nhập mã phòng");
-      document.getElementById("roomDisplay").textContent = roomId;
+      if (!roomId) return alert("Vui lòng nhập mã phòng!");
       document.getElementById("setupArea").classList.add("hidden");
       document.getElementById("gameArea").classList.remove("hidden");
+      document.getElementById("roomDisplay").textContent = roomId;
+
+      const roomRef = ref(db, "rooms/" + roomId + "/lastDraw");
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.player && data.card) showCard(data.player, data.card);
+      });
     };
 
-    function drawCard(player) {
+    window.drawCard = function(player) {
       if (remainingCards.length === 0) {
-        return alert("Hết bài rồi!");
+        alert("Hết bài rồi!");
+        return; // Dừng hàm nếu hết bài
       }
 
-      const cardIndex = Math.floor(Math.random() * remainingCards.length);
-      const drawnCard = remainingCards.splice(cardIndex, 1)[0];
-      
+      const cardIndex = Math.floor(Math.random() * remainingCards.length); // Chọn ngẫu nhiên một bài
+      const drawnCard = remainingCards.splice(cardIndex, 1)[0]; // Rút bài và loại bỏ khỏi danh sách
+
       history.push({ player: player === 1 ? "Người chơi 1" : "Người chơi 2", question: drawnCard.question });
 
       const questionText = drawnCard.question;
       const imgSrc = drawnCard.image;
 
+      // Cập nhật thông tin người chơi 1 hoặc 2
       if (player === 1) {
         document.getElementById("card1").innerHTML = `<img src="${imgSrc}" class="card-img" />`;
         document.getElementById("question1").textContent = questionText;
@@ -272,20 +222,23 @@
         document.getElementById("question2").textContent = questionText;
       }
 
-      updateHistory();
-      updateCardsLeft();
-    }
+      updateHistory();  // Cập nhật lịch sử rút bài
+      updateCardsLeft();  // Cập nhật số lượng bài còn lại
+    };
 
-    function resetTurn() {
-      document.getElementById("card1").innerHTML = "<img src='back.png' class='card-img' />";
-      document.getElementById("question1").textContent = "";
-      document.getElementById("card2").innerHTML = "<img src='back.png' class='card-img' />";
-      document.getElementById("question2").textContent = "";
+    function showCard(player, card) {
+      if (player === 1) {
+        document.getElementById("card1").innerHTML = `<img src="${card.image}" class="card-img" />`;
+        document.getElementById("question1").textContent = card.question;
+      } else {
+        document.getElementById("card2").innerHTML = `<img src="${card.image}" class="card-img" />`;
+        document.getElementById("question2").textContent = card.question;
+      }
     }
 
     function updateHistory() {
       const historyList = document.getElementById("historyList");
-      historyList.innerHTML = "";
+      historyList.innerHTML = ""; // Xóa danh sách cũ
       history.forEach(item => {
         const li = document.createElement("li");
         li.textContent = `${item.player}: ${item.question}`;
@@ -296,6 +249,13 @@
     function updateCardsLeft() {
       document.getElementById("cardsLeft").textContent = remainingCards.length;
     }
+
+    window.resetTurn = function () {
+      document.getElementById("card1").innerHTML = '<img src="back.png" class="card-img" />';
+      document.getElementById("card2").innerHTML = '<img src="back.png" class="card-img" />';
+      document.getElementById("question1").textContent = "";
+      document.getElementById("question2").textContent = "";
+    };
   </script>
 </body>
 </html>
